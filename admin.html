@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | Winiarta Mandiri</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--ink:#172033;--muted:#68758a;--line:#e5e9f0;--bg:#f4f6fa;--orange:#f3a32f;--navy:#172033;--white:#fff;--red:#c83d3d;--green:#16794b}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--ink)}button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:11px 15px;font-weight:700}.primary{background:var(--orange);color:#172033}.secondary{background:#edf1f6;color:var(--ink)}.danger{background:#fff0f0;color:var(--red)}.muted{color:var(--muted)}.hidden{display:none!important}
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(135deg,#172033,#263b59)}.login-card{width:min(100%,430px);background:white;padding:34px;border-radius:18px;box-shadow:0 24px 70px #0003}.brand{font-weight:900;font-size:22px;letter-spacing:.3px}.brand span{color:var(--orange)}.login-card h1{font-size:25px;margin:28px 0 8px}.field{display:grid;gap:7px;margin:15px 0}.field label{font-size:13px;font-weight:700}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:9px;padding:12px;background:#fff;color:var(--ink)}.field textarea{min-height:100px;resize:vertical}.login-card .primary{width:100%;margin-top:8px}.notice{font-size:13px;color:var(--red);min-height:18px;margin-top:12px}
+.app{min-height:100vh}.topbar{height:68px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:5}.topbar small{display:block;color:var(--muted);font-size:11px;letter-spacing:1.2px;margin-top:3px}.layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 68px)}aside{background:var(--navy);padding:22px 14px;color:white}.nav-btn{display:block;width:100%;text-align:left;background:transparent;color:#dce3ed;margin:4px 0;padding:13px;border-radius:9px}.nav-btn.active,.nav-btn:hover{background:#ffffff1a;color:#fff}.main{padding:30px;min-width:0}.heading{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:22px}.heading h1{font-size:25px;margin:0 0 5px}.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px;flex-wrap:wrap}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:650px}th,td{text-align:left;padding:13px 11px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle}th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px}td img{width:64px;height:48px;object-fit:cover;border-radius:7px}.actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{padding:8px 10px;font-size:12px}.grid-form{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.full{grid-column:1/-1}.empty{padding:25px;text-align:center;color:var(--muted)}.status{font-size:12px;color:var(--muted)}.badge{display:inline-block;padding:5px 8px;border-radius:20px;background:#e8f6ee;color:var(--green);font-size:11px;font-weight:700}
+@media(max-width:760px){.layout{grid-template-columns:1fr}aside{display:flex;overflow:auto;padding:9px;gap:5px}.nav-btn{white-space:nowrap;width:auto;margin:0;padding:10px 12px}.main{padding:18px}.topbar{padding:0 16px}.grid-form{grid-template-columns:1fr}.full{grid-column:auto}.heading{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<section id="loginView" class="login-wrap">
+ <form id="loginForm" class="login-card">
+  <div class="brand">WINIARTA <span>MANDIRI</span></div>
+  <div class="muted" style="font-size:12px;letter-spacing:1.5px;margin-top:5px">PANEL ADMINISTRATOR</div>
+  <h1>Login Admin</h1><p class="muted">Masuk menggunakan akun admin yang terdaftar di Supabase.</p>
+  <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required placeholder="admin@email.com"></div>
+  <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required placeholder="Masukkan password"></div>
+  <button class="primary" id="loginButton" type="submit">Masuk ke Dashboard</button>
+  <div id="loginNotice" class="notice" role="alert"></div>
+  <p class="muted" style="font-size:12px;margin-top:20px">Winiarta Mandiri · Admin Area</p>
+ </form>
+</section>
+<section id="appView" class="app hidden">
+ <header class="topbar"><div><div class="brand">WINIARTA <span>MANDIRI</span></div><small>ADMIN DASHBOARD</small></div><button class="secondary" id="logoutButton">Keluar</button></header>
+ <div class="layout">
+  <aside>
+   <button class="nav-btn active" data-page="produk">Produk</button>
+   <button class="nav-btn" data-page="galeri">Galeri</button>
+   <button class="nav-btn" data-page="faq">FAQ</button>
+   <button class="nav-btn" data-page="pesan">Pesan pelanggan</button>
+  </aside>
+  <main class="main">
+   <div class="heading"><div><h1 id="pageTitle">Produk</h1><div class="muted" id="pageDesc">Kelola produk yang tampil di website.</div></div><span class="badge">Admin terverifikasi</span></div>
+   <section id="content"></section>
+  </main>
+ </div>
+</section>
+<script>
+const SUPABASE_URL='https://gaviwpgnnhtgumpoptna.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_3yoC-jweF-sW5i6eP38iLA_PzGzlhQr';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const $=s=>document.querySelector(s);
+let currentPage='produk',editingId=null,records=[];
+const config={
+ produk:{title:'Produk',desc:'Kelola produk dan layanan yang tampil di website.',table:'produk',fields:[['nama','Nama produk','text',true],['kategori','Kategori','text',false],['deskripsi','Deskripsi','textarea',false],['harga','Harga / keterangan harga','text',false],['gambar_url','Foto produk','file',false]],columns:['nama','kategori','harga'],image:'gambar_url'},
+ galeri:{title:'Galeri',desc:'Kelola foto hasil pekerjaan Winiarta Mandiri.',table:'galeri',fields:[['judul','Judul foto','text',true],['deskripsi','Deskripsi','textarea',false],['gambar_url','Foto galeri','file',true]],columns:['judul','deskripsi'],image:'gambar_url'},
+ faq:{title:'FAQ',desc:'Kelola pertanyaan dan jawaban yang tampil di website.',table:'faq',fields:[['pertanyaan','Pertanyaan','text',true],['jawaban','Jawaban','textarea',true],['urutan','Urutan tampil','number',false],['aktif','Tampilkan di website','checkbox',false]],columns:['pertanyaan','jawaban','aktif']},
+ pesan:{title:'Pesan pelanggan',desc:'Lihat pesan yang dikirim melalui formulir website.',table:'pesan',columns:['nama','telepon','jenis_pekerjaan','isi_pesan','status','created_at']}
+};
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function notice(message,isError=true){const el=$('#loginNotice');el.textContent=message;el.style.color=isError?'#c83d3d':'#16794b';}
+async function verifyAdmin(session){
+ if(!session){showLogin();return false;}
+ const {data,error}=await db.from('user_roles').select('role').eq('user_id',session.user.id).maybeSingle();
+ if(error||data?.role!=='admin'){await db.auth.signOut();showLogin();notice('Akun ini tidak memiliki akses admin.');return false;}
+ $('#loginView').classList.add('hidden');$('#appView').classList.remove('hidden');await loadPage(currentPage);return true;
+}
+function showLogin(){$('#appView').classList.add('hidden');$('#loginView').classList.remove('hidden');}
+$('#loginForm').addEventListener('submit',async e=>{
+ e.preventDefault();const b=$('#loginButton');b.disabled=true;b.textContent='Memeriksa akun...';notice('');
+ const {data,error}=await db.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});
+ if(error){notice('Login gagal. Periksa email dan password Anda.');}
+ else{await verifyAdmin(data.session);}
+ b.disabled=false;b.textContent='Masuk ke Dashboard';
+});
+$('#logoutButton').addEventListener('click',async()=>{await db.auth.signOut();showLogin();});
+db.auth.onAuthStateChange((_event,session)=>{if(!session)showLogin();});
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.nav-btn').forEach(x=>x.classList.toggle('active',x===b));loadPage(b.dataset.page);}));
+async function loadPage(page){
+ currentPage=page;editingId=null;const c=config[page];$('#pageTitle').textContent=c.title;$('#pageDesc').textContent=c.desc;
+ const target=$('#content');target.innerHTML='<div class="panel empty">Memuat data...</div>';
+ let query=db.from(c.table).select('*');
+ if(page==='produk'||page==='faq')query=query.order('created_at',{ascending:false});
+ if(page==='galeri')query=query.order('created_at',{ascending:false});
+ if(page==='pesan')query=query.order('created_at',{ascending:false});
+ const {data,error}=await query;
+ if(error){target.innerHTML='<div class="panel empty">Data gagal dimuat. Pastikan kebijakan akses tabel sudah benar.</div>';console.error(error);return;}
+ records=data||[];renderPage();
+}
+function renderPage(){
+ const c=config[currentPage],target=$('#content');
+ if(currentPage==='pesan'){
+ target.innerHTML='<div class="panel"><div class="toolbar"><strong>'+records.length+' pesan diterima</strong><button class="secondary" id="refreshBtn">Muat ulang</button></div><div class="table-wrap"><table><thead><tr>'+c.columns.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+records.map(r=>'<tr>'+c.columns.map(x=>'<td>'+esc(x==='created_at'?new Date(r[x]).toLocaleString('id-ID'):r[x])+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>'+(records.length?'':'<div class="empty">Belum ada pesan pelanggan.</div>')+'</div>';
+ $('#refreshBtn').onclick=()=>loadPage(currentPage);return;
+ }
+ target.innerHTML='<div class="panel" id="formPanel"><div class="toolbar"><strong id="formTitle">Tambah '+c.title+'</strong><button class="secondary" id="cancelEdit" type="button">Kosongkan form</button></div><form id="dataForm" class="grid-form">'+c.fields.map(([key,label,type,required])=>'<div class="field '+(type==='textarea'?'full':'')+'"><label for="f_'+key+'">'+label+(required?' *':'')+'</label>'+(type==='textarea'?'<textarea id="f_'+key+'" '+(required?'required':'')+'></textarea>':type==='checkbox'?'<input id="f_'+key+'" type="checkbox" checked style="width:auto">':'<input id="f_'+key+'" type="'+(type==='file'?'file':type)+'" '+(type==='file'?'accept="image/*"':'')+' '+(required?'required':'')+' >')+'</div>').join('')+'<div class="full"><button class="primary" type="submit" id="saveBtn">Simpan data</button><span id="formMessage" class="status" style="margin-left:10px"></span></div></form></div><div class="panel"><div class="toolbar"><strong>Daftar '+c.title+'</strong><button class="secondary" id="refreshBtn">Muat ulang</button></div><div class="table-wrap"><table><thead><tr><th>Foto</th>'+c.columns.map(x=>'<th>'+esc(x)+'</th>').join('')+'<th>Aksi</th></tr></thead><tbody>'+records.map(r=>'<tr><td>'+(c.image&&r[c.image]?'<img src="'+esc(r[c.image])+'" alt="">':'—')+'</td>'+c.columns.map(x=>'<td>'+esc(x==='aktif'?(r[x]?'Ya':'Tidak'):r[x])+'</td>').join('')+'<td><div class="actions"><button class="secondary" data-edit="'+r.id+'">Edit</button><button class="danger" data-delete="'+r.id+'">Hapus</button></div></td></tr>').join('')+'</tbody></table></div>'+(records.length?'':'<div class="empty">Belum ada data.</div>')+'</div>';
+ $('#cancelEdit').onclick=()=>resetForm();$('#refreshBtn').onclick=()=>loadPage(currentPage);
+ $('#dataForm').onsubmit=saveRecord;
+ target.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editRecord(b.dataset.edit));
+ target.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>deleteRecord(b.dataset.delete));
+}
+function resetForm(){editingId=null;$('#dataForm').reset();$('#formTitle').textContent='Tambah '+config[currentPage].title;$('#saveBtn').textContent='Simpan data';}
+function editRecord(id){
+ const row=records.find(r=>String(r.id)===String(id));if(!row)return;editingId=row.id;
+ config[currentPage].fields.forEach(([key,,type])=>{const el=$('#f_'+key);if(type==='file'){el.value='';}else if(type==='checkbox'){el.checked=!!row[key];}else{el.value=row[key]??'';}});
+ $('#formTitle').textContent='Edit data';$('#saveBtn').textContent='Simpan perubahan';window.scrollTo({top:0,behavior:'smooth'});
+}
+async function saveRecord(e){
+ e.preventDefault();const c=config[currentPage],b=$('#saveBtn'),msg=$('#formMessage');b.disabled=true;b.textContent='Menyimpan...';msg.textContent='';
+ const payload={};for(const [key,,type] of c.fields){if(type==='file'||type==='checkbox')continue;const value=$('#f_'+key).value.trim();if(value!=='')payload[key]=type==='number'?Number(value):value;}
+ const activeField=c.fields.find(x=>x[0]==='aktif');if(activeField)payload.aktif=$('#f_aktif').checked;
+ const fileField=c.fields.find(x=>x[2]==='file');const file=fileField?$('#f_'+fileField[0]).files[0]:null;
+ try{
+  if(file){const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');const path=currentPage+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+   const {error:upErr}=await db.storage.from('winiarta-media').upload(path,file,{upsert:false,contentType:file.type});if(upErr)throw upErr;
+   payload[fileField[0]]=db.storage.from('winiarta-media').getPublicUrl(path).data.publicUrl;
+  }else if(!editingId&&fileField&&fileField[3]){throw new Error('Silakan pilih foto terlebih dahulu.');}
+  const result=editingId?await db.from(c.table).update(payload).eq('id',editingId):await db.from(c.table).insert(payload);
+  if(result.error)throw result.error;
+  msg.textContent='Data berhasil disimpan.';resetForm();await loadPage(currentPage);
+ }catch(err){msg.textContent='Gagal: '+(err.message||'Terjadi kesalahan');console.error(err);}
+ b.disabled=false;b.textContent=editingId?'Simpan perubahan':'Simpan data';
+}
+async function deleteRecord(id){
+ if(!confirm('Yakin ingin menghapus data ini?'))return;
+ const {error}=await db.from(config[currentPage].table).delete().eq('id',id);
+ if(error){alert('Gagal menghapus data: '+error.message);return;}await loadPage(currentPage);
+}
+(async()=>{const {data}=await db.auth.getSession();if(data.session)await verifyAdmin(data.session);})();
+</script>
+</body>
+</html>

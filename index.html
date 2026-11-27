@@ -33,8 +33,8 @@ async function loadProducts(){
 async function loadFaq(){
  const target=document.querySelector('#faqList');
  const {data,error}=await db.from('faq').select('pertanyaan,jawaban').eq('aktif',true).order('urutan',{ascending:true});
- if(error){target.innerHTML='<p class="intro">Informasi FAQ belum dapat dimuat.</p>';console.error('Supabase FAQ:',error);return;}
- if(!data?.length){target.innerHTML='<p class="intro">Belum ada pertanyaan yang ditampilkan.</p>';return;}
+ if(error){console.error('Supabase FAQ:',error);}
+ if(!data?.length){target.innerHTML='<details><summary>Apakah bisa membuat produk sesuai desain pelanggan?</summary><p>Silakan kirim gambar atau contoh desain melalui WhatsApp. Ukuran dan bahan akan didiskusikan terlebih dahulu.</p></details><details><summary>Bagaimana cara mengetahui harga?</summary><p>Harga menyesuaikan jenis pekerjaan, ukuran, bahan, desain, dan tingkat kesulitan. Hubungi kami untuk estimasi.</p></details><details><summary>Apakah melayani pagar dan kanopi?</summary><p>Ya, pagar dan kanopi termasuk layanan yang dapat dikonsultasikan, selain railing dan teralis.</p></details><details><summary>Bagaimana cara melakukan pemesanan?</summary><p>Hubungi WhatsApp, sampaikan kebutuhan, lalu diskusikan desain, ukuran, bahan, biaya, dan jadwal.</p></details><details><summary>Apakah bisa konsultasi terlebih dahulu?</summary><p>Tentu. Silakan hubungi kami sebelum memutuskan pemesanan.</p></details>';return;}
  target.innerHTML=data.map(item=>'<details><summary>'+escapeHtml(item.pertanyaan)+'</summary><p>'+escapeHtml(item.jawaban)+'</p></details>').join('');
 }
 document.querySelector('#contactForm').addEventListener('submit',async e=>{

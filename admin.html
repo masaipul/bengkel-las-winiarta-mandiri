@@ -35,6 +35,7 @@
    <button class="nav-btn" data-page="galeri">Galeri</button>
    <button class="nav-btn" data-page="faq">FAQ</button>
    <button class="nav-btn" data-page="pesan">Pesan pelanggan</button>
+   <button class="nav-btn" data-page="pengaturan">Pengaturan Website</button>
   </aside>
   <main class="main">
    <div class="heading"><div><h1 id="pageTitle">Produk</h1><div class="muted" id="pageDesc">Kelola produk yang tampil di website.</div></div><span class="badge">Admin terverifikasi</span></div>
@@ -52,7 +53,19 @@ const config={
  produk:{title:'Produk',desc:'Kelola produk dan layanan yang tampil di website.',table:'produk',fields:[['nama','Nama produk','text',true],['kategori','Kategori','text',false],['deskripsi','Deskripsi','textarea',false],['harga','Harga / keterangan harga','text',false],['gambar_url','Foto produk','file',false]],columns:['nama','kategori','harga'],image:'gambar_url'},
  galeri:{title:'Galeri',desc:'Kelola foto hasil pekerjaan Winiarta Mandiri.',table:'galeri',fields:[['judul','Judul foto','text',true],['deskripsi','Deskripsi','textarea',false],['gambar_url','Foto galeri','file',true]],columns:['judul','deskripsi'],image:'gambar_url'},
  faq:{title:'FAQ',desc:'Kelola pertanyaan dan jawaban yang tampil di website.',table:'faq',fields:[['pertanyaan','Pertanyaan','text',true],['jawaban','Jawaban','textarea',true],['urutan','Urutan tampil','number',false],['aktif','Tampilkan di website','checkbox',false]],columns:['pertanyaan','jawaban','aktif']},
- pesan:{title:'Pesan pelanggan',desc:'Lihat pesan yang dikirim melalui formulir website.',table:'pesan',columns:['nama','telepon','jenis_pekerjaan','isi_pesan','status','created_at']}
+ pesan:{title:'Pesan pelanggan',desc:'Lihat pesan yang dikirim melalui formulir website.',table:'pesan',columns:['nama','telepon','jenis_pekerjaan','isi_pesan','status','created_at']},
+ pengaturan:{
+  title:'Pengaturan Website',
+  desc:'Kelola informasi utama Bengkel Las Winiarta Mandiri.',
+  table:'pengaturan_website',
+  fields:[
+    ['nama_usaha','Nama Usaha','text',true],
+    ['whatsapp','Nomor WhatsApp','text',true],
+    ['alamat','Alamat Bengkel','textarea',false],
+    ['jam_operasional','Jam Operasional','text',false],
+    ['deskripsi','Deskripsi Usaha','textarea',false]
+  ]
+},
 };
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function notice(message,isError=true){const el=$('#loginNotice');el.textContent=message;el.style.color=isError?'#c83d3d':'#16794b';}

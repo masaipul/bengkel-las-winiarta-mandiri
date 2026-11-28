@@ -30,7 +30,8 @@
  <header class="topbar"><div><div class="brand">WINIARTA <span>MANDIRI</span></div><small>ADMIN DASHBOARD</small></div><button class="secondary" id="logoutButton">Keluar</button></header>
  <div class="layout">
   <aside>
-   <button class="nav-btn active" data-page="produk">Produk</button>
+   <button class="nav-btn active" data-page="dashboard">Dashboard</button>
+   <button class="nav-btn" data-page="produk">Produk</button>
    <button class="nav-btn" data-page="galeri">Galeri</button>
    <button class="nav-btn" data-page="faq">FAQ</button>
    <button class="nav-btn" data-page="pesan">Pesan pelanggan</button>
@@ -46,7 +47,7 @@ const SUPABASE_URL='https://gaviwpgnnhtgumpoptna.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_3yoC-jweF-sW5i6eP38iLA_PzGzlhQr';
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
-let currentPage='produk',editingId=null,records=[];
+let currentPage='dashboard',editingId=null,records=[];
 const config={
  produk:{title:'Produk',desc:'Kelola produk dan layanan yang tampil di website.',table:'produk',fields:[['nama','Nama produk','text',true],['kategori','Kategori','text',false],['deskripsi','Deskripsi','textarea',false],['harga','Harga / keterangan harga','text',false],['gambar_url','Foto produk','file',false]],columns:['nama','kategori','harga'],image:'gambar_url'},
  galeri:{title:'Galeri',desc:'Kelola foto hasil pekerjaan Winiarta Mandiri.',table:'galeri',fields:[['judul','Judul foto','text',true],['deskripsi','Deskripsi','textarea',false],['gambar_url','Foto galeri','file',true]],columns:['judul','deskripsi'],image:'gambar_url'},
@@ -73,7 +74,10 @@ $('#logoutButton').addEventListener('click',async()=>{await db.auth.signOut();sh
 db.auth.onAuthStateChange((_event,session)=>{if(!session)showLogin();});
 document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.nav-btn').forEach(x=>x.classList.toggle('active',x===b));loadPage(b.dataset.page);}));
 async function loadPage(page){
- currentPage=page;editingId=null;const c=config[page];$('#pageTitle').textContent=c.title;$('#pageDesc').textContent=c.desc;
+ currentPage=page;editingId=null;
+ document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+ if(page==='dashboard'){await loadDashboard();return;}
+ const c=config[page];$('#pageTitle').textContent=c.title;$('#pageDesc').textContent=c.desc;
  const target=$('#content');target.innerHTML='<div class="panel empty">Memuat data...</div>';
  let query=db.from(c.table).select('*');
  if(page==='produk'||page==='faq')query=query.order('created_at',{ascending:false});
@@ -82,6 +86,24 @@ async function loadPage(page){
  const {data,error}=await query;
  if(error){target.innerHTML='<div class="panel empty">Data gagal dimuat. Pastikan kebijakan akses tabel sudah benar.</div>';console.error(error);return;}
  records=data||[];renderPage();
+}
+async function loadDashboard(){
+ $('#pageTitle').textContent='Dashboard';$('#pageDesc').textContent='Ringkasan data website Winiarta Mandiri.';
+ const target=$('#content');target.innerHTML='<div class="panel empty">Memuat statistik...</div>';
+ const countRows=async(table,filter)=>{let q=db.from(table).select('*',{count:'exact',head:true});if(filter)q=filter(q);const {count,error}=await q;if(error)throw error;return count||0;};
+ try{
+  const [produk,galeri,pesan,baru,diproses,selesai]=await Promise.all([
+   countRows('produk',q=>q.eq('aktif',true)),
+   countRows('galeri'),
+   countRows('pesan'),
+   countRows('pesan',q=>q.eq('status','baru')),
+   countRows('pesan',q=>q.eq('status','diproses')),
+   countRows('pesan',q=>q.eq('status','selesai'))
+  ]);
+  const stats=[['Produk aktif',produk,'box'],['Foto galeri',galeri,'images'],['Total pesan',pesan,'message-square'],['Pesan baru',baru,'inbox'],['Sedang diproses',diproses,'clock'],['Pesan selesai',selesai,'check-circle']];
+  target.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px">'+stats.map(s=>'<div class="panel" style="margin:0"><div class="muted" style="font-size:13px">'+s[0]+'</div><div style="font-size:32px;font-weight:800;margin-top:10px">'+s[1]+'</div></div>').join('')+'</div><div class="panel" style="margin-top:18px"><strong>Ringkasan pengelolaan</strong><p class="muted" style="font-size:13px;line-height:1.7;margin-bottom:0">Gunakan menu di sebelah kiri untuk mengelola produk, galeri, FAQ, dan pesan pelanggan. Statistik diperbarui saat Dashboard dibuka atau tombol muat ulang ditekan.</p><button class="secondary" id="refreshStats" style="margin-top:14px">Muat ulang statistik</button></div>';
+  $('#refreshStats').onclick=()=>loadDashboard();
+ }catch(err){target.innerHTML='<div class="panel empty">Statistik gagal dimuat. Periksa kebijakan akses tabel di Supabase.</div>';console.error(err);}
 }
 function renderPage(){
  const c=config[currentPage],target=$('#content');
